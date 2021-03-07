@@ -34,7 +34,7 @@ class Pegawai {
         nama: json["nama"],
         alamat: json["alamat"],
         email: json["email"],
-        phone: json["phone"],
+        phone: json["phone"].toString(),
         divisi: json["divisi"],
         jabatan: json["jabatan"],
         gender: json["gender"],

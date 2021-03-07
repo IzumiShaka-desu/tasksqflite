@@ -7,6 +7,7 @@ class DefaultFormField extends StatefulWidget {
   final Widget icon;
   final bool isObscure;
   final FormFieldValidator<String> validation;
+  final TextInputType inputType;
   const DefaultFormField({
     Key key,
     @required this.labelText,
@@ -14,7 +15,7 @@ class DefaultFormField extends StatefulWidget {
     this.hint,
     @required this.icon,
     this.isObscure = false,
-    this.validation,
+    this.validation, this.inputType,
   }) : super(key: key);
 
   @override
@@ -40,6 +41,7 @@ class _DefaultFormFieldState extends State<DefaultFormField> {
               controller: widget.textEditingController,
               obscureText: isObscure,
               validator: widget.validation,
+              keyboardType: widget.inputType??TextInputType.text,
               decoration: InputDecoration(
                 labelText: widget.labelText ?? "",
                 hintText:

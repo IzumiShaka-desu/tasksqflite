@@ -20,6 +20,9 @@ class MainViewModel extends ChangeNotifier {
   MainViewModel() {
     loadLoginDetails();
   }
+  void refresh() {
+    notifyListeners();
+  }
 
   Future loadLoginDetails() async {
     _isLogin = await _localService.isLogin();
@@ -55,13 +58,16 @@ class MainViewModel extends ChangeNotifier {
     }
   }
 
-  Future deleteWorkers(int idWorker, BuildContext context) async {
+  Future<Pegawai> deleteWorkers(int idWorker, BuildContext context) async {
+    debugPrint(idWorker.toString());
     bool _isSuccess = await _dbService.deletePegawai(idWorker);
     if (_isSuccess) {
-      loadWorkersList();
       Dialogs.showSnackbar(context, "berhasil menghapus pegawai");
+      return workers.removeAt(
+          workers.indexWhere((element) => element.idPegawai == idWorker));
     } else {
       Dialogs.showSnackbar(context, "tidak berhasil menghapus pegawai");
     }
+    return null;
   }
 }

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:tasksqflite/core/data/models/pegawai.dart';
 
@@ -10,7 +9,9 @@ class DbHelper {
     return _singleton;
   }
 
-  DbHelper._internal();
+  DbHelper._internal() {
+    openDb();
+  }
   static final DbHelper instance = DbHelper();
 
   static const COLLUMN_POSITION = "jabatan";
@@ -25,9 +26,9 @@ class DbHelper {
 
   static const COLLUMN_ID = "id";
 
-  static const TABLE_PEGAWAI_NAME = "table_pegawai";
+  static const TABLE_PEGAWAI_NAME = "tablepegawai";
 
-  static const TABLE_LOGIN_NAME = "table_login";
+  static const TABLE_LOGIN_NAME = "tableSlogin";
 
   static const COLLUMN_EMAIL = "email";
 
@@ -40,20 +41,19 @@ class DbHelper {
   Future openDb() async {
     if (db == null) {
       var dbPath = await getDatabasesPath();
-      debugPrint(dbPath);
       db = await openDatabase((dbPath + "mhs.db"), version: 1,
           onCreate: (db, version) async {
         db.execute('''
               CREATE table $TABLE_PEGAWAI_NAME (
                      $COLLUMN_ID_PEGAWAI integer primary key autoincrement,
-                      $COLLUMN_NAME varchar(30) not null,
-                      $COLLUMN_GENDER varchar(10) not null,
-                      $COLLUMN_ADDRESS text not null,
-                      $COLLUMN_POSITION varchar(25) not null,
-                      $COLLUMN_EMAIL varchar(25) not null,
-                      $COLLUMN_PHONE varchar(14) not null,
+                      $COLLUMN_NAME text ,
+                      $COLLUMN_GENDER text ,
+                      $COLLUMN_ADDRESS text,
+                      $COLLUMN_POSITION text,
+                      $COLLUMN_EMAIL text ,
+                      $COLLUMN_PHONE integer ,
 
-                      $COLLUMN_DIVISION varchar(25) not null
+                      $COLLUMN_DIVISION text
                        )
                        ''');
         db.execute('''
@@ -100,7 +100,7 @@ class DbHelper {
   }
 
   Future<Pegawai> getDetailPegawai(int id) async {
-    await openDb();
+    openDb();
 
     List<Map<String, dynamic>> maps = await db.rawQuery(
         'SELECT * FROM $TABLE_PEGAWAI_NAME WHERE $COLLUMN_ID_PEGAWAI = $id');
@@ -122,12 +122,19 @@ class DbHelper {
   Future<int> insert(Pegawai mhs) async {
     await openDb();
 
-    await db.insert(TABLE_PEGAWAI_NAME, mhs.toJson());
+    return await db.insert(TABLE_PEGAWAI_NAME, mhs.toJson());
   }
 
   Future<int> update(Pegawai mhs) async {
-    await db.update(TABLE_PEGAWAI_NAME, mhs.toJson(),
-        where: '$COLLUMN_ID_PEGAWAI = ?', whereArgs: [mhs.idPegawai]);
+    var json = mhs.toJson();
+    json['idPegawai'] = null;
+    json.removeWhere((key, value) => value == null);
+    return await db.update(
+        TABLE_PEGAWAI_NAME,
+        json.map<String, Object>(
+            (key, value) => MapEntry<String, Object>(key, value)),
+        where: '$COLLUMN_ID_PEGAWAI = ?',
+        whereArgs: [mhs.idPegawai]);
   }
 
   Future close() async {

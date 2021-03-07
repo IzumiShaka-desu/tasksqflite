@@ -9,20 +9,25 @@ class FormDefault extends StatefulWidget {
   final List<String> obscureField;
   final String submitButtonLabel;
   final List<String> notRequiredfield;
+  final List<String> fieldtypeNumber;
+  final List<Widget> customField;
 
   final Function(
     Map<String, String> result,
   ) onSubmit;
-
-  const FormDefault(
-      {Key key,
-      this.field = const [],
-      this.obscureField = const [],
-      this.notRequiredfield = const [],
-      this.onSubmit,
-      this.icons = const [],
-      this.submitButtonLabel = "Submit"})
-      : super(key: key);
+  final Map<String,String> defaultValue;
+  const FormDefault({
+    Key key,
+    this.field = const [],
+    this.obscureField = const [],
+    this.notRequiredfield = const [],
+    this.onSubmit,
+    this.icons = const [],
+    this.submitButtonLabel = "Submit",
+    this.fieldtypeNumber = const [],
+    this.customField = const [], this.defaultValue=const {},
+    
+  }) : super(key: key);
   @override
   _FormDefaultState createState() => _FormDefaultState();
 }
@@ -32,7 +37,7 @@ class _FormDefaultState extends State<FormDefault> {
   @override
   void initState() {
     widget.field.forEach((element) {
-      _controllers[element] = TextEditingController();
+      _controllers[element] = TextEditingController(text:widget.defaultValue[element]);
     });
     super.initState();
   }
@@ -65,15 +70,18 @@ class _FormDefaultState extends State<FormDefault> {
     for (var i = 0; i < widget.field.length; i++) {
       var wFields = widget.field;
       var _icon = (i < widget.icons.length) ? widget.icons[i] : SizedBox();
+      bool isNumberType =
+          (widget.fieldtypeNumber ?? []).contains(widget.field[i]);
       fields.add(
         Row(
           children: [
             Expanded(
               child: DefaultFormField(
                 icon: _icon,
-                isObscure: widget.obscureField.contains(wFields[i]),
+                inputType: isNumberType ? TextInputType.number : null,
+                isObscure: (widget.obscureField ?? []).contains(wFields[i]),
                 validation: (value) {
-                  if (widget.notRequiredfield.contains(wFields[i])) {
+                  if ((widget.notRequiredfield ?? []).contains(wFields[i])) {
                     return null;
                   } else if (value.isEmpty) {
                     return 'this fields is required';
@@ -91,21 +99,24 @@ class _FormDefaultState extends State<FormDefault> {
         ),
       );
     }
-    fields.add(Container(
-      margin: EdgeInsets.only(top: 30),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          PrimaryButton(
-              onPressed: () {
-                if (_fKey.currentState.validate()) {
-                  widget.onSubmit(getResultForm());
-                }
-              },
-              text: widget.submitButtonLabel),
-        ],
+    fields.addAll(widget.customField ?? []);
+    fields.add(
+      Container(
+        margin: EdgeInsets.only(top: 30),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            PrimaryButton(
+                onPressed: () {
+                  if (_fKey.currentState.validate()) {
+                    widget.onSubmit(getResultForm());
+                  }
+                },
+                text: widget.submitButtonLabel),
+          ],
+        ),
       ),
-    ));
+    );
     return fields;
   }
 

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:tasksqflite/core/ui/view/home.dart';
 import 'package:tasksqflite/core/ui/view/splashscreens.dart';
 
 void main() {
